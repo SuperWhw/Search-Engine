@@ -27,13 +27,9 @@ class Doc:
 class IndexModule:
     postings_lists = {}
     
-    def __init__(self, config_path, config_encoding):
-        self.config_path = config_path
-        self.config_encoding = config_encoding
-        config = configparser.ConfigParser()
-        config.read(config_path, config_encoding)
-        self.text_process = TextProcess(config)
-        
+    def __init__(self, config):
+        self.config = config
+        self.text_process = TextProcess(config)    
     
     def write_postings_to_db(self, db_path):
         conn = sqlite3.connect(db_path)
@@ -52,13 +48,11 @@ class IndexModule:
         conn.close()
     
     def construct_postings_lists(self):
-        config = configparser.ConfigParser()
-        config.read(self.config_path, self.config_encoding)
-        files = listdir(config['DEFAULT']['doc_file_path'])
+        files = listdir(self.config['DEFAULT']['doc_file_path'])
         AVG_L = 0
 
         for f in files:
-            root = ET.parse(config['DEFAULT']['doc_file_path'] + f).getroot()
+            root = ET.parse(self.config['DEFAULT']['doc_file_path'] + f).getroot()
             title = root.find('title').text
             body = root.find('body').text
             docid = int(root.find('id').text)
@@ -87,13 +81,15 @@ class IndexModule:
                     self.postings_lists[key] = [1, [d]] # [df, [Doc]]
             
         AVG_L = AVG_L / len(files)
-        config.set('DEFAULT', 'num_files', str(len(files)))
-        config.set('DEFAULT', 'avg_l', str(AVG_L))
-        with open(self.config_path, 'w', encoding = self.config_encoding) as configfile:
-            config.write(configfile)
+        self.config.set('DEFAULT', 'num_files', str(len(files)))
+        self.config.set('DEFAULT', 'avg_l', str(AVG_L))
+        with open(self.config['DEFAULT']['config_path'], 'w', encoding = self.config['DEFAULT']['config_encoding']) as configfile:
+            self.config.write(configfile)
         
         self.write_postings_to_db(config['DEFAULT']['db_path'])
 
 if __name__ == "__main__":
-    im = IndexModule('./config.ini', 'utf-8')
+    config = configparser.ConfigParser()
+    config.read("./config.ini", encoding="utf-8")
+    im = IndexModule(config)
     im.construct_postings_lists()

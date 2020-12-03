@@ -2,6 +2,7 @@ import time
 import xml.etree.ElementTree as ET
 import configparser
 import csv
+from tqdm import tqdm
 
 import requests
 from bs4 import BeautifulSoup
