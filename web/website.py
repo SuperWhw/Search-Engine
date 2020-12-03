@@ -14,15 +14,18 @@ import sqlite3
 import configparser
 import time
 import jieba
+import os
 import sys
 from flask import Flask, render_template, request
 
-sys.path.append('../Sophia/')
+sys.path.append('..')
+sys.path.append(os.getcwd())
 
 from search_engine import SearchEngine
 
 app = Flask(__name__)
 
+dir_path = ''
 doc_file_path = ''
 db_path = ''
 global page
@@ -30,11 +33,14 @@ global keys
 
 
 def init():
+    global dir_path, doc_file_path, db_path
+    dir_path = os.getcwd() + '/'
     config = configparser.ConfigParser()
-    config.read('F:/Sophia/config.ini', 'utf-8')
-    global dir_path, db_path
-    dir_path = 'F:/Sophia/'+config['DEFAULT']['doc_file_path']
-    db_path = 'F:/Sophia/'+config['DEFAULT']['db_path']
+    config.read(dir_path+'config.ini', 'utf-8')
+    doc_file_path = dir_path+config['DEFAULT']['doc_file_path']
+    print(doc_file_path)
+    db_path = dir_path+config['DEFAULT']['db_path']
+    print(db_path)
 
 
 @app.route('/')
@@ -89,9 +95,9 @@ def cut_page(page, no):
 # 将需要的数据以字典形式打包传递给search函数
 def find(docid, extra=False):
     docs = []
-    global dir_path, db_path
+    global doc_file_path, db_path
     for id in docid:
-        root = ET.parse(dir_path + '%s.xml' % id).getroot()
+        root = ET.parse(doc_file_path + '%s.xml' % id).getroot()
         url = root.find('url').text
         title = root.find('title').text
         body = root.find('body').text
