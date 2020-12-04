@@ -114,7 +114,7 @@ def get_news_info(news_list, doc_file_path, doc_encoding="utf-8"):
 if __name__ == '__main__':
     config = configparser.ConfigParser()
     config.read("./config.ini", encoding="utf-8")
-    category = ['china/szyw/']
+    category = ['china/szyw/','science/ITyj/']
     root_url = "http://www.cankaoxiaoxi.com/"
     news_list = get_news_item(category, root_url)
     get_news_info(news_list, config['DEFAULT']['doc_file_path'])

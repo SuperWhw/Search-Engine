@@ -1,4 +1,4 @@
-#python scrach.py
+python scratch.py
 
 python create_db.py
 
